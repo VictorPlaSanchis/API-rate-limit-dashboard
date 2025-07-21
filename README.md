@@ -10,6 +10,20 @@ Demo completo de un servicio de rate‑limiting distribuido con Redis + Lua y un
 
 ![ejemplo](rate-limit-example.PNG)
 
+### Atomicidad con Lua
+
+```lua
+-- token_bucket.lua (fragmento)
+local key       = ARGV[1]
+local refill    = tonumber(ARGV[2])
+local period    = tonumber(ARGV[3])
+local cost      = tonumber(ARGV[4])
+-- cálculo y actualización de tokens
+redis.call("SET", key .. ":ts", now)
+redis.call("SET", key .. ":tokens", tokens)
+```
+Este fragmento se ejecuta enteramente en el servidor Redis como un solo comando EVALSHA, garantizando que ninguna otra operación interrumpa la recarga y el gasto de tokens, por lo que todas las lecturas y escrituras de estado ocurren de forma atómica.
+
 ## 📁 Estructura
 
 API-rate-limit-dashboard/  
